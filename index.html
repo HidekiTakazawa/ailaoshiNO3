@@ -48,7 +48,7 @@
     const cnCheckbox = document.getElementById('cn-checkbox');
     //  デフォルトで日本語のチェックボックスを真とする。---------------------------------
     jpCheckbox.checked = true;
-    // ------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------真--------
     recognition.onsoundstart = function(){
       document.getElementById('status').innerHTML = "認識中";
     };
@@ -107,12 +107,15 @@
 
     recognition.onresult = function(event){
         var results = event.results;
+        let interimTranscript = ""; // 認識中のテキスト
         for (var i = event.resultIndex; i<results.length; i++){
+          let transcript = event.results[i][0].transcript;
           if(results[i].isFinal)
-            show_result.innerHTML += '<div>'+ results[i][0].transcript +'</div>';
+            show_result.innerHTML += '<div>'+ transcript +'</div>';
           else
-            show_progress.innerHTML = "[途中経過] "+ results[i][0].transcript;
-        }
+          interimTranscript += transcript;
+      }
+      show_progress.innerHTML = "[途中経過] "+ interimTranscript;
     }
   </script>
 </html>
