@@ -36,6 +36,7 @@
     // ------------------------------------------------------------
     // Show Progress
     recognition.interimResults = true;
+    
     // Continuous recognition
     recognition.continuous = true;
 
@@ -60,6 +61,7 @@
     };
     recognition.onsoundend = function(){
       document.getElementById('status').innerHTML = "停止中";
+      recognition.start();
     };
 
     start_btn.addEventListener('click' , function() {
@@ -104,16 +106,21 @@
         recognition.lang = chLanguage; // 言語を設定
         // --------------------------------------------------------------
     });
+    
 
     recognition.onresult = function(event){
+      
         var results = event.results;
+        
         let interimTranscript = ""; // 認識中のテキスト
         for (var i = event.resultIndex; i<results.length; i++){
           let transcript = event.results[i][0].transcript;
           if(results[i].isFinal)
             show_result.innerHTML += '<div>'+ transcript +'</div>';
-          else
-          interimTranscript += transcript;
+          else {
+            interimTranscript += transcript;
+
+          }
       }
       show_progress.innerHTML = "[途中経過] "+ interimTranscript;
     }
