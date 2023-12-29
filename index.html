@@ -39,7 +39,7 @@
   // Show Progress
   // recognition.interimResults = true;
   recognition.interimResults = false;
- 
+
   // Continuous recognition
   recognition.continuous = true;
 
@@ -58,17 +58,22 @@
     };
     recognition.onnomatch = function () {
       document.getElementById('status').innerHTML = "もう一度試してください";
-      fncSpeechRecognition();
+      // fncSpeechRecognition();
     };
     recognition.onerror = function () {
       document.getElementById('status').innerHTML = "エラー";
-      fncSpeechRecognition();
+      // fncSpeechRecognition();
     };
     recognition.onsoundend = function () {
       document.getElementById('status').innerHTML = "停止中";
+      // recognition.stop();
+      // fncSpeechRecognition();
+
+    };
+    recognition.onspeechend = () => {
       recognition.stop();
+      console.log("音声認識サービスが停止されました。");
       fncSpeechRecognition();
-     
     };
     recognition.onresult = function (event) {
 
@@ -86,7 +91,7 @@
       }
       show_progress.innerHTML = "[途中経過] " + interimTranscript;
     }
-    
+
 
   }
   //  デフォルトで日本語のチェックボックスを真とする。---------------------------------
