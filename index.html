@@ -37,8 +37,9 @@
   recognition.lang = jpLanguage;
   // ------------------------------------------------------------
   // Show Progress
-  recognition.interimResults = true;
-
+  // recognition.interimResults = true;
+  recognition.interimResults = false;
+ 
   // Continuous recognition
   recognition.continuous = true;
 
@@ -65,7 +66,7 @@
     recognition.onsoundend = function () {
       document.getElementById('status').innerHTML = "停止中";
       fncSpeechRecognition();
-      recognition.start();
+     
     };
     recognition.onresult = function (event) {
 
