@@ -52,6 +52,7 @@
   const cnCheckbox = document.getElementById('cn-checkbox');
   function fncSpeechRecognition() {
     // ----------------------------------------------------------------------真--------
+    recognition.start();
     recognition.onsoundstart = function () {
       document.getElementById('status').innerHTML = "認識中";
     };
@@ -84,7 +85,7 @@
       }
       show_progress.innerHTML = "[途中経過] " + interimTranscript;
     }
-    recognition.start();
+    
 
   }
   //  デフォルトで日本語のチェックボックスを真とする。---------------------------------
