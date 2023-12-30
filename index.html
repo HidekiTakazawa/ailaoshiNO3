@@ -21,27 +21,32 @@
   <div id="show_result"></div>
 </body>
 <script>
-  // Declare SpeechRecognition
-  window.SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
-  var recognition = new webkitSpeechRecognition();
-
+  let recognition;
+  let swGengo;  // 言語の種類
+  let swinterimResults;
+  let swStop = false; // stopボタンを押したか？
+  
   // Web Speech API Configuration
   // Language
   // var selectedLanguage = 'ja-JP'; // デフォルトは日本語
   // 追加  -----------------------------------------
   const jpLanguage = 'ja-JP';
   const chLanguage = 'zh-CN';
+  swGengo = jpLanguage; // デフォルトは日本語
+  const ua = window.navigator.userAgent.toLowerCase();
+  let isAndroid = false;
+  if (ua.indexOf("androd") !== -1) {
+    isAndroid = true;
+  }
   // ----------------------------------------------
-  // 変更　----------------------------------------------------------
-  // recognition.lang = selectedLanguage;
-  recognition.lang = jpLanguage;
-  // ------------------------------------------------------------
   // Show Progress
-  // recognition.interimResults = true;
-  recognition.interimResults = false;
+  if (isAndroid) {
+    swinterimResults = false;
 
-  // Continuous recognition
-  recognition.continuous = true;
+  } else {
+    swinterimResults = true;
+
+  }
 
   // Const
   const start_btn = document.getElementById('start_btn');
@@ -50,30 +55,37 @@
   const show_result = document.getElementById('show_result');
   const jpCheckbox = document.getElementById('jp-checkbox');
   const cnCheckbox = document.getElementById('cn-checkbox');
-  function fncSpeechRecognition() {
-    // ----------------------------------------------------------------------真--------
+  //  デフォルトで日本語のチェックボックスを真とする。---------------------------------
+  jpCheckbox.checked = true;
+  // ----------------------------------------------------------------------真--------
+  function fncSpeecgRecognition() {
+    // Declare SpeechRecognition
+    window.SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
+    recognition = new webkitSpeechRecognition();
+    // Continuous recognition
+    recognition.continuous = true;
+    // 変更　----------------------------------------------------------
+    // recognition.lang = selectedLanguage;
+    recognition.lang = swGengo;
+    // ------------------------------------------------------------
+    recognition.interimResults = swinterimResults;
     recognition.start();
     recognition.onsoundstart = function () {
       document.getElementById('status').innerHTML = "認識中";
     };
     recognition.onnomatch = function () {
       document.getElementById('status').innerHTML = "もう一度試してください";
-      // fncSpeechRecognition();
     };
     recognition.onerror = function () {
       document.getElementById('status').innerHTML = "エラー";
-      // fncSpeechRecognition();
     };
     recognition.onsoundend = function () {
       document.getElementById('status').innerHTML = "停止中";
-      // recognition.stop();
-      // fncSpeechRecognition();
+      if (!swStop) {
+        recognition.stop();
+        fncSpeecgRecognition();
 
-    };
-    recognition.onspeechend = () => {
-      recognition.stop();
-      console.log("音声認識サービスが停止されました。");
-      fncSpeechRecognition();
+      }
     };
     recognition.onresult = function (event) {
 
@@ -92,23 +104,25 @@
       show_progress.innerHTML = "[途中経過] " + interimTranscript;
     }
 
-
   }
-  //  デフォルトで日本語のチェックボックスを真とする。---------------------------------
-  jpCheckbox.checked = true;
+
+
 
 
   start_btn.addEventListener('click', function () {
+    swStop = false;
     // Start recognition
     // 追加 ----------------------------------------------------
     show_result.textContent = '';
     // --------------------------------------------------------
-    fncSpeechRecognition();
+    // recognition.start();
+    fncSpeecgRecognition();
     this.disabled = true;
     stop_btn.disabled = false;
   });
 
   stop_btn.addEventListener('click', function () {
+    swStop = true;
     // Stop recognition
     recognition.stop();
     this.disabled = true;
@@ -124,7 +138,8 @@
     // }
     // recognition.lang = selectedLanguage; // 言語を設定 --------------------
     cnCheckbox.checked = false;
-    recognition.lang = jpLanguage; // 言語を設定
+    // recognition.lang = jpLanguage; // 言語を設定
+    swGengo = jpLanguage; // 言語を設定
     // ---------------------------------------------------
   });
 
@@ -137,7 +152,8 @@
     // 変更　---------------------------------------------- -----
     // recognition.lang = selectedLanguage; // 言語を設定
     jpCheckbox.checked = false;
-    recognition.lang = chLanguage; // 言語を設定
+    // recognition.lang = chLanguage; // 言語を設定
+    swGengo = chLanguage; // 言語を設定
     // --------------------------------------------------------------
   });
 
