@@ -1,164 +1,128 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>音声から文字に変換</title>
-</head>
-
-<body>
-  <h2>音声から文字に変換</h2>
-  <label for="jp-checkbox">日本語</label>
-  <input type="checkbox" id="jp-checkbox" name="language" value="jp">
-  <label for="cn-checkbox">中国語</label>
-  <input type="checkbox" id="cn-checkbox" name="language" value="cn">
-  <button id="start_btn">start</button>
-  <button id="stop_btn">stop</button>
-  <small id="status"></small>
-  <h3>Recognition Result</h3>
-  <textarea id="show_progress" cols="100" rows="1"></textarea>
-  <div id="show_result"></div>
-</body>
-<script>
-  let recognition;
-  let swGengo;  // 言語の種類
-  let swinterimResults;
-  let swStop = false; // stopボタンを押したか？
-  
-  // Web Speech API Configuration
-  // Language
-  // var selectedLanguage = 'ja-JP'; // デフォルトは日本語
-  // 追加  -----------------------------------------
-  const jpLanguage = 'ja-JP';
-  const chLanguage = 'zh-CN';
-  swGengo = jpLanguage; // デフォルトは日本語
-  const ua = window.navigator.userAgent.toLowerCase();
-  let isAndroid = false;
-  if (ua.indexOf("androd") !== -1) {
-    isAndroid = true;
-  }
-  // ----------------------------------------------
-  // Show Progress
-  if (isAndroid) {
-    swinterimResults = false;
-
-  } else {
-    swinterimResults = true;
-
-  }
-
-  // Const
-  const start_btn = document.getElementById('start_btn');
-  const stop_btn = document.getElementById('stop_btn');
-  const show_progress = document.getElementById('show_progress')
-  const show_result = document.getElementById('show_result');
-  const jpCheckbox = document.getElementById('jp-checkbox');
-  const cnCheckbox = document.getElementById('cn-checkbox');
-  //  デフォルトで日本語のチェックボックスを真とする。---------------------------------
-  jpCheckbox.checked = true;
-  // ----------------------------------------------------------------------真--------
-  function fncSpeecgRecognition() {
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音声から文字に変換</title>
+  </head>
+  <body>
+    <h2>音声から文字に変換</h2>
+    <label for="jp-checkbox">日本語</label>
+    <input type="checkbox" id="jp-checkbox" name="language" value="jp">
+    <label for="cn-checkbox">中国語</label>
+    <input type="checkbox" id="cn-checkbox" name="language" value="cn">
+    <button id="start_btn">start</button>
+    <button id="stop_btn">stop</button>
+    <small id="status"></small>
+    <h3>Recognition Result</h3>
+    <textarea id="show_progress" cols="100" rows="1"></textarea>        
+    <div id="show_result"></div>
+  </body>
+  <script>
     // Declare SpeechRecognition
     window.SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
-    recognition = new webkitSpeechRecognition();
-    // Continuous recognition
-    recognition.continuous = true;
+    var recognition = new webkitSpeechRecognition();
+
+    // Web Speech API Configuration
+    // Language
+    // var selectedLanguage = 'ja-JP'; // デフォルトは日本語
+    // 追加  -----------------------------------------
+    const jpLanguage = 'ja-JP';
+    const chLanguage = 'zh-CN';
+    // ----------------------------------------------
     // 変更　----------------------------------------------------------
     // recognition.lang = selectedLanguage;
-    recognition.lang = swGengo;
+    recognition.lang = jpLanguage;
     // ------------------------------------------------------------
-    recognition.interimResults = swinterimResults;
-    recognition.start();
-    recognition.onsoundstart = function () {
+    // Show Progress
+    recognition.interimResults = true;
+    
+    // Continuous recognition
+    recognition.continuous = true;
+
+    // Const
+    const start_btn = document.getElementById('start_btn');
+    const stop_btn = document.getElementById('stop_btn');
+    const show_progress = document.getElementById('show_progress')
+    const show_result = document.getElementById('show_result');
+    const jpCheckbox = document.getElementById('jp-checkbox');
+    const cnCheckbox = document.getElementById('cn-checkbox');
+    //  デフォルトで日本語のチェックボックスを真とする。---------------------------------
+    jpCheckbox.checked = true;
+    // ----------------------------------------------------------------------真--------
+    recognition.onsoundstart = function(){
       document.getElementById('status').innerHTML = "認識中";
     };
-    recognition.onnomatch = function () {
+    recognition.onnomatch = function(){
       document.getElementById('status').innerHTML = "もう一度試してください";
     };
-    recognition.onerror = function () {
+    recognition.onerror= function(){
       document.getElementById('status').innerHTML = "エラー";
     };
-    recognition.onsoundend = function () {
+    recognition.onsoundend = function(){
       document.getElementById('status').innerHTML = "停止中";
-      if (!swStop) {
-        recognition.stop();
-        fncSpeecgRecognition();
-
-      }
+      
     };
-    recognition.onresult = function (event) {
 
-      var results = event.results;
+    start_btn.addEventListener('click' , function() {
+        // Start recognition
+        // 追加 ----------------------------------------------------
+        show_result.textContent = '';
+        // --------------------------------------------------------
+        recognition.start();
+        this.disabled = true;
+        stop_btn.disabled = false;
+    });
 
-      let interimTranscript = ""; // 認識中のテキスト
-      for (var i = event.resultIndex; i < results.length; i++) {
-        let transcript = event.results[i][0].transcript;
-        if (results[i].isFinal)
-          show_result.innerHTML += '<div>' + transcript + '</div>';
-        else {
-          interimTranscript += transcript;
+    stop_btn.addEventListener('click' , function() {
+        // Stop recognition
+        recognition.stop();
+        this.disabled = true;
+        start_btn.disabled = false;
+        show_progress.innerHTML = '';
+    });
 
-        }
+    jpCheckbox.addEventListener('change', function() {
+        // Change recognition language based on checkbox state
+        // if (this.checked) {
+        //     selectedLanguage = 'ja-JP'; // 日本語
+        //     cnCheckbox.checked = false; // 中国語チェックボックスをオフにする
+        // }
+        // recognition.lang = selectedLanguage; // 言語を設定 --------------------
+        cnCheckbox.checked = false;
+        recognition.lang = jpLanguage; // 言語を設定
+        // ---------------------------------------------------
+    });
+
+    cnCheckbox.addEventListener('change', function() {
+        // Change recognition language based on checkbox state
+        // if (this.checked) {
+        //     selectedLanguage = 'zh-CH'; // 中国語
+        //     jpCheckbox.checked = false; // 日本語チェックボックスをオフにする
+        // }
+        // 変更　---------------------------------------------- -----
+        // recognition.lang = selectedLanguage; // 言語を設定
+        jpCheckbox.checked = false;
+        recognition.lang = chLanguage; // 言語を設定
+        // --------------------------------------------------------------
+    });
+    
+
+    recognition.onresult = function(event){
+      
+        var results = event.results;
+        
+        let interimTranscript = ""; // 認識中のテキスト
+        for (var i = event.resultIndex; i<results.length; i++){
+          let transcript = event.results[i][0].transcript;
+          if(results[i].isFinal)
+            show_result.innerHTML += '<div>'+ transcript +'</div>';
+          else {
+            interimTranscript += transcript;
+
+          }
       }
-      show_progress.innerHTML = "[途中経過] " + interimTranscript;
+      show_progress.innerHTML = "[途中経過] "+ interimTranscript;
     }
-
-  }
-
-
-
-
-  start_btn.addEventListener('click', function () {
-    swStop = false;
-    // Start recognition
-    // 追加 ----------------------------------------------------
-    show_result.textContent = '';
-    // --------------------------------------------------------
-    // recognition.start();
-    fncSpeecgRecognition();
-    this.disabled = true;
-    stop_btn.disabled = false;
-  });
-
-  stop_btn.addEventListener('click', function () {
-    swStop = true;
-    // Stop recognition
-    recognition.stop();
-    this.disabled = true;
-    start_btn.disabled = false;
-    show_progress.innerHTML = '';
-  });
-
-  jpCheckbox.addEventListener('change', function () {
-    // Change recognition language based on checkbox state
-    // if (this.checked) {
-    //     selectedLanguage = 'ja-JP'; // 日本語
-    //     cnCheckbox.checked = false; // 中国語チェックボックスをオフにする
-    // }
-    // recognition.lang = selectedLanguage; // 言語を設定 --------------------
-    cnCheckbox.checked = false;
-    // recognition.lang = jpLanguage; // 言語を設定
-    swGengo = jpLanguage; // 言語を設定
-    // ---------------------------------------------------
-  });
-
-  cnCheckbox.addEventListener('change', function () {
-    // Change recognition language based on checkbox state
-    // if (this.checked) {
-    //     selectedLanguage = 'zh-CH'; // 中国語
-    //     jpCheckbox.checked = false; // 日本語チェックボックスをオフにする
-    // }
-    // 変更　---------------------------------------------- -----
-    // recognition.lang = selectedLanguage; // 言語を設定
-    jpCheckbox.checked = false;
-    // recognition.lang = chLanguage; // 言語を設定
-    swGengo = chLanguage; // 言語を設定
-    // --------------------------------------------------------------
-  });
-
-
-
-</script>
-
+  </script>
 </html>
